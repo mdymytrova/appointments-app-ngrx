@@ -1,0 +1,59 @@
+<div class="management-container-outer">
+    <div class="management-toolbar management-toolbar-full-width">
+        <h1>{{ mode == 'create' ? 'Add new service' : 'Edit service'}}</h1>
+        <div class="management-toolbar">
+            <button mat-stroked-button color="primary" type="button" (click)="onDiscard()">Discard</button>
+            <button mat-raised-button color="primary" type="button" (click)="onSave()">Save</button>
+        </div>
+    </div>
+    <div class="management-container-inner">
+        <form [formGroup]="form">
+            <div class="form-row form-row-flex">
+                <mat-form-field appearance="fill" class="form-column">
+                    <mat-label>Service name</mat-label>
+                    <input matInput formControlName="name" [formControl]="$any(form).get('name')">
+                    <mat-error>Please add name</mat-error>
+                </mat-form-field>
+
+                <mat-form-field appearance="fill" class="form-column">
+                    <mat-label>Category</mat-label>
+                    <mat-select formControlName="category" [compareWith]="compareWith">
+                        <mat-option *ngFor="let category of (serviceCategories$ | async)" [value]="category">{{ category.name }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+
+            <mat-form-field appearance="fill" class="form-row">
+                <mat-label>Description</mat-label>
+                <textarea rows="5" matInput formControlName="description" [formControl]="$any(form).get('description')"></textarea>
+                </mat-form-field>
+
+            <div class="form-row">
+                <div formGroupName="duration" class="form-column form-row-flex">
+                    <mat-form-field class="form-column-duration" appearance="fill">
+                        <mat-label>Hours</mat-label>
+                        <mat-select formControlName="hours">
+                            <mat-option *ngFor="let hour of timeOptions.hours" [value]="hour">
+                              {{hour}}
+                            </mat-option>
+                        </mat-select>
+                        <mat-error>Enter hours (0-23)</mat-error>
+                    </mat-form-field>
+                    <mat-form-field class="form-column-duration" appearance="fill">
+                        <mat-label>Minutes</mat-label>
+                        <mat-select formControlName="minutes">
+                            <mat-option *ngFor="let minutes of timeOptions.minutes" [value]="minutes">
+                              {{minutes}}
+                            </mat-option>
+                        </mat-select>
+                        <mat-error>Please enter minutes (0-59)</mat-error>
+                    </mat-form-field>
+                </div>
+            </div>
+
+        </form>
+    </div>
+    <div class="management-toolbar management-toolbar-full-width">
+        <button mat-stroked-button color="primary" type="button" (click)="navigateBack()">Back</button>
+    </div>
+</div>

@@ -1,0 +1,43 @@
+<div class="management-container-outer">
+    <div class="management-toolbar management-toolbar-full-width">
+        <h1>Services</h1>
+        <button mat-raised-button color="primary" [routerLink]="['categories', 'create']">Add</button>
+    </div>
+
+    <mat-drawer-container class="container" *ngIf="(serviceCategories$ | async) as serviceCategories">
+        <mat-drawer mode="side" opened class="sidenav-container">
+            <nav>
+                <div class="sidenav-link"
+                    *ngFor="let category of serviceCategories; let serviceIndex = index"
+                    [routerLink]="['categories', category.id]"
+                    routerLinkActive="sidenav-link-active"
+                    [matTooltip]="category.name">
+                        <div class="category-title">
+                            <mat-icon mat-list-icon class="category-icon-color">folder</mat-icon>
+                            <div class="category-title-ellipsis">
+                                <span>{{ category.name }}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="category-title-toolbar" *ngIf="serviceIndex > 0">
+                            <mat-icon
+                                mat-list-icon class="category-title-toolbar-button category-icon-color"
+                                [matMenuTriggerFor]="menu">edit
+                            </mat-icon>
+                            <mat-menu #menu="matMenu">
+                            <button mat-menu-item (click)="onEditCategory(category)">Edit category</button>
+                            <button mat-menu-item (click)="onDeleteCategory(category)">Delete category</button>
+                            </mat-menu>
+                        </div>
+
+                </div>
+            </nav>
+            <div class="category-menu-button">
+                <button mat-raised-button color="primary" (click)="onAddCategory()">Add category</button>
+            </div>
+        </mat-drawer>
+        <mat-drawer-content class="main-content-container">
+            <router-outlet></router-outlet>
+        </mat-drawer-content>
+      </mat-drawer-container>
+</div>

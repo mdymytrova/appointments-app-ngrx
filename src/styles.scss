@@ -1,0 +1,29 @@
+/* You can add global styles to this file, and also import other style files */
+@import "~@angular/material/prebuilt-themes/indigo-pink.css";
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+.form-container-view {
+    .mat-accent.mat-checkbox-checked .mat-checkbox-background {
+        background-color: #ff4081;
+    }
+
+    .mat-checkbox-label {
+        color: rgba(0,0,0,.87);
+    }
+
+    .mat-date-range-input-container input {
+        color: rgba(0,0,0,.87);
+    }
+
+    .mat-select .mat-select-trigger {
+        .mat-select-value {
+            color: rgba(0,0,0,.87);
+        }
+        .mat-select-arrow {
+            opacity: 0;
+        }
+    }
+    
+}

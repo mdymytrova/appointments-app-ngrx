@@ -1,0 +1,98 @@
+<div class="management-container-outer">
+    <div class="management-toolbar management-toolbar-full-width">
+        <h1>{{ mode == 'create' ? 'Add new provider' : 'Edit provider'}}</h1>
+        <div class="management-toolbar">
+            <button mat-stroked-button color="primary" type="button" (click)="onDiscard()">Discard</button>
+            <button mat-raised-button color="primary" type="button" (click)="onSave()">Save</button>
+        </div>
+    </div>
+    <div class="management-container-inner">
+        <form [formGroup]="form" class="form-container">
+            <div formGroupName="contactInfo">
+                <h3>Contact info</h3>
+                <div class="form-row form-row-flex">
+                    <mat-form-field appearance="fill" class="form-column">
+                        <mat-label>First name</mat-label>
+                        <input matInput formControlName="firstName">
+                        <mat-error>Please add name</mat-error>
+                    </mat-form-field>
+                    <mat-form-field appearance="fill" class="form-column">
+                        <mat-label>Last name</mat-label>
+                        <input matInput formControlName="lastName">
+                        <mat-error>Please add name</mat-error>
+                    </mat-form-field>
+                </div>
+
+                <div class="form-row form-row-flex">
+                    <mat-form-field appearance="fill" class="form-column">
+                        <mat-label>Phone</mat-label>
+                        <input matInput formControlName="phone">
+                    </mat-form-field>
+    
+                    <mat-form-field appearance="fill" class="form-column">
+                        <mat-label>Email</mat-label>
+                        <input matInput formControlName="email">
+                    </mat-form-field>
+                </div>
+    
+            </div>
+
+            <mat-divider></mat-divider>
+
+            <div>
+                <h3>Services</h3>
+                <div formArrayName="services" class="form-row form-row-flex form-service-container">
+                    <div *ngFor="let service of servicesControls; let serviceIndex = index;" [formGroupName]="serviceIndex" class="form-service-control">
+                        <mat-checkbox formControlName="checked">{{service.value.name}}</mat-checkbox>
+                    </div>
+                </div>
+            </div>
+
+            <mat-divider></mat-divider>
+
+            <div>
+                <h3>Schedule</h3>
+                <div formArrayName="schedule" class="form-schedule-container">
+                    <p *ngIf="daysConfigurationError">Workday is misconfigured: {{ daysConfigurationError.join(', ') }}</p>
+                    <div *ngFor="let day of daysControls; let dayIndex = index;">
+                      <div [formGroupName]="dayIndex" class="form-row form-row-flex">
+                        <mat-checkbox formControlName="available" matTooltip="Mark day as workday"></mat-checkbox>
+    
+                        <span class="form-day-name">{{day?.value?.name}}</span>
+
+                        <div *ngIf="!day.value?.available" class="form-day-time-off">Day Off</div>
+                        <div *ngIf="day.value?.available" class="form-day-time-container">
+                            <mat-form-field appearance="fill" class="form-date-field">
+                                <mat-label>Workday start</mat-label>
+                                <input matInput type="time" formControlName="start">
+                            </mat-form-field>
+        
+                            <mat-form-field appearance="fill" class="form-date-field">
+                                <mat-label>Workday end</mat-label>
+                                <input matInput type="time" formControlName="end">
+                            </mat-form-field>
+        
+                            <span>Break:</span>
+        
+                            <mat-form-field appearance="fill" class="form-date-field">
+                                <mat-label>Break start</mat-label>
+                                <input matInput type="time" formControlName="breakStart">
+                            </mat-form-field>
+        
+                            <mat-form-field appearance="fill" class="form-date-field">
+                                <mat-label>Break end</mat-label>
+                                <input matInput type="time" formControlName="breakEnd">
+                            </mat-form-field>
+                        </div>
+    
+                      </div>
+                    </div>
+                </div>
+            </div>
+
+          </form>
+    </div>
+    <div class="management-toolbar management-toolbar-full-width">
+        <button mat-stroked-button color="primary" type="button" (click)="navigateBack()">Back</button>
+    </div>
+</div>

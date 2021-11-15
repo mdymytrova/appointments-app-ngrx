@@ -1,0 +1,30 @@
+.management-container-inner {
+    overflow-y: auto;
+    height: calc(100% - 180px);
+    margin: 1rem 0;
+}
+
+.management-container-outer {
+    height: 100%;
+}
+
+.management-toolbar {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 1rem;
+}
+
+.management-toolbar-full-width {
+    justify-content: space-between;
+}
+
+.management-toolbar-right {
+    justify-content: start;
+}
+
+@media screen and (max-height: 700px) {
+    .management-container-inner {
+        height: calc(100% - 100px);
+    }    
+  }

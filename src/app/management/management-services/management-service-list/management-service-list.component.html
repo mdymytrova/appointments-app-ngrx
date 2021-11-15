@@ -1,0 +1,16 @@
+<div class="category-view">
+    <h2>{{ (selectedCategory$ | async)?.name }}</h2>
+    <ng-container *ngIf="(managementServices$ | async) as services">
+        <mat-card *ngFor="let service of services" class="item-list-card">
+            <div>
+                <h4 class="item-list-card-header">{{ service.name }}</h4>
+                <mat-card-subtitle class="item-list-card-header">Duration: {{ service.duration.hours }}hr {{ service.duration.minutes }}min</mat-card-subtitle>
+            </div>
+    
+            <mat-card-actions>
+                <button mat-raised-button color="primary" [routerLink]="['../', service.id, 'edit']">Edit</button>
+                <button mat-stroked-button color="primary" (click)="onDelete(service)">Delete</button>
+            </mat-card-actions>
+        </mat-card>
+    </ng-container>
+</div>

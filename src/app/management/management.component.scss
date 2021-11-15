@@ -1,0 +1,57 @@
+.container {
+    height: calc(100vh - 100px);
+    padding-top: 1rem;
+    overflow: hidden;
+    background-color: #fff;
+    margin: 1rem;
+}
+
+.sidenav {
+    &-container {
+        width: 12vw;
+        padding-right: 1rem;
+
+        &-menu {
+            width: 3rem;
+            padding: 0;
+        }
+    }
+
+    &-link {
+        display: block;
+        text-decoration: none;
+        color: rgba(0,0,0,.87);
+        padding: 5px;
+        border-radius: 4px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+
+        &-active {
+            color: #fff !important;
+            background-color: #3f51b5;
+
+        }
+    }
+    &-link:visited {
+        color: rgba(0,0,0,.87);
+    }
+}
+
+.sidenav-container.sidenav-closed {
+    display: none;
+}
+
+.main-content {
+    &-container {
+        padding: 1rem;
+    }
+}
+
+.visible {
+    display: block;
+}
+
+.hidden {
+    display: none;
+}

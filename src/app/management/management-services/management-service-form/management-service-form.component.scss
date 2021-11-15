@@ -1,0 +1,20 @@
+@import url('../../management-shared.scss');
+
+.form {
+    &-row {
+        width: 100%;
+        &-flex {
+            display: flex;
+            flex-direction: row;
+            gap: 1rem;
+            justify-content: start;
+        }
+    }
+
+    &-column {
+        width: 50%;
+        &-duration {
+            width: 80px;
+        }
+    }
+}

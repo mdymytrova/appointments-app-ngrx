@@ -1,0 +1,12 @@
+.dialog {
+    &-container {
+        min-width: 300px;
+    }
+    &-input {
+        width: 100%;
+    }
+    &-actions {
+        display: flex;
+        justify-content: space-between;
+    }
+}

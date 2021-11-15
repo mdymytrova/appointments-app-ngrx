@@ -1,0 +1,15 @@
+@import url('../../management-shared.scss');
+
+.item-list {
+    &-card {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin: 0.8rem auto;
+        padding: 0.8rem;
+
+        &-header {
+            margin-bottom: 0;
+        }
+    }
+}

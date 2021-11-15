@@ -1,0 +1,13 @@
+.container {
+    height: calc(100vh - 66px);
+    width: 70%;
+    overflow-y: auto;
+    margin: 0 auto;
+}
+
+@media screen and (max-width: 1400px) {
+    .container {
+        height: calc(100vh - 66px);
+        width: 100%;
+    }
+}

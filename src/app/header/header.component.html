@@ -1,0 +1,21 @@
+<div class="header-container">
+    <mat-toolbar class="header-container-inner">
+        <span routerLink="/" class="header-name">Calendar</span>
+        <span class="header-spacer"></span>
+        <div *ngIf="(authService.user$ | async) as user">
+            <p  class="header-username"> {{ user?.email }} </p>
+        </div>
+        <button
+            mat-icon-button
+            aria-label="Menu icon"
+            [matMenuTriggerFor]="menu">
+                <mat-icon>menu</mat-icon>
+        </button>
+        <mat-menu #menu="matMenu">
+            <button type="button" *ngIf="authService.isLoggedOut$ | async" mat-menu-item routerLink="login">Sign In</button>
+            <button type="button" *ngIf="authService.isAdmin$ | async" mat-menu-item [routerLink]="['/manage']">Management</button>
+            <button type="button" *ngIf="authService.isLoggedIn$ | async" mat-menu-item (click)="onSignOut()">Sign Out</button>
+        </mat-menu>
+    </mat-toolbar>
+    
+</div>

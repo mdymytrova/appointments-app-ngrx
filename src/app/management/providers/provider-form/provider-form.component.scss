@@ -1,0 +1,66 @@
+@import url('../../management-shared.scss');
+
+.form {
+    &-container {
+        width: 96%;
+        margin: 0 auto;
+    }
+    &-row {
+        width: 100%;
+        &-flex {
+            display: flex;
+            flex-direction: row;
+            gap: 1rem;
+            justify-content: start;
+            flex-wrap: wrap;
+            align-items: center;
+            min-height: 72px;
+        }
+    }
+
+    &-date-field {
+        width: 150px;
+    }
+
+    &-column {
+        width: 48%;
+        &-duration {
+            width: 80px;
+        }
+    }
+
+    &-service {
+        &-control {
+            width: 200px;
+        }
+        &-container {
+            margin: 1rem auto;
+            display: flex;
+            flex-wrap: wrap;
+        }
+    }
+
+    &-schedule {
+        &-container {
+            margin-top: 1rem;
+        }
+    }
+
+    &-day {
+        &-name {
+            width: 80px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+        &-time {
+            &-container {
+                display: flex;
+                flex-direction: row;
+                flex-wrap: wrap;
+                gap: 1rem;
+                align-items: center;
+            }
+        }
+    }
+}

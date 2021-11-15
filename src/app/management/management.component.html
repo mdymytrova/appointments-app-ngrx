@@ -1,0 +1,25 @@
+<mat-drawer-container class="container">
+    <mat-drawer
+        mode="side" opened
+        [ngClass]="{'sidenav-container': true, 'sidenav-container-menu': mobileQuery.matches}"
+        *ngIf="(taskList$ | async) as tasks">
+        <nav *ngIf="!mobileQuery.matches">
+            <a class="sidenav-link"
+                *ngFor="let task of tasks"
+                [routerLink]="[task.url]"
+                routerLinkActive="sidenav-link-active">{{ task.name }}
+            </a>
+        </nav>
+        <div *ngIf="mobileQuery.matches">
+            <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Example icon-button with a menu">
+                <mat-icon>more_vert</mat-icon>
+            </button>
+            <mat-menu #menu="matMenu">
+                <button mat-menu-item *ngFor="let task of tasks" type="button" [routerLink]="[task.url]">{{ task.name }}</button>
+            </mat-menu>
+        </div>
+    </mat-drawer>
+    <mat-drawer-content class="main-content-container">
+        <router-outlet></router-outlet>
+    </mat-drawer-content>
+</mat-drawer-container>

@@ -1,0 +1,17 @@
+<div class="management-toolbar management-toolbar-full-width">
+    <h1>Service Providers</h1>
+    <button mat-raised-button color="primary" [routerLink]="['create']">Add</button>
+</div>
+<mat-divider></mat-divider>
+<div *ngIf="(providers$ | async) as providers">
+    <mat-card *ngFor="let provider of providers" class="item-list-card">
+        <div>
+            <h4 class="item-list-card-header">{{ provider?.contactInfo?.firstName }} {{ provider?.contactInfo?.lastName }}</h4>
+        </div>
+
+        <mat-card-actions>
+            <button mat-raised-button color="primary" [routerLink]="[provider.id, 'edit']">Edit</button>
+            <button mat-stroked-button color="primary" (click)="onDelete(provider)">Delete</button>
+          </mat-card-actions>
+    </mat-card>
+</div>
