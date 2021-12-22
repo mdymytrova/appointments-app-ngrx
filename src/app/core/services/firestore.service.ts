@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { AngularFirestore, QueryFn } from '@angular/fire/compat/firestore';
-import { Observable } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+import { MessagesService } from '../../messages/messages.service';
 
 @Injectable({
   providedIn: 'root'
@@ -8,10 +10,15 @@ import { Observable } from 'rxjs';
 export abstract class FirestoreService<T> {
   protected abstract path: string;
 
-  constructor(protected firestore: AngularFirestore) { }
+  constructor(protected firestore: AngularFirestore, private messageService: MessagesService) { }
 
   collection$(queryFn?: QueryFn): Observable<T[]> {
-    return this.firestore.collection<T>(this.path, queryFn).valueChanges({ idField: 'id' });
+    return this.firestore.collection<T>(this.path, queryFn).valueChanges({ idField: 'id' }).pipe(
+      catchError((error) => {
+        this.messageService.showMessage('Unable to load data.');
+        return throwError(error);
+      }),
+    );
   }
 
   doc$(id: string): Observable<T | undefined> {
@@ -20,15 +27,21 @@ export abstract class FirestoreService<T> {
 
   create(value: Partial<T>) {
     const id = this.firestore.createId();
-    return this.firestore.collection(`${this.path}`).doc(id).set(Object.assign({}, { id }, value));
+    return this.firestore.collection(`${this.path}`).doc(id).set(Object.assign({}, { id }, value)).catch(error => {
+      this.messageService.showMessage('Unable to create item.');
+    });
   }
 
   update(id: string, value: T) {
-    return this.firestore.collection(`${this.path}`).doc(id).update(value);
+    return this.firestore.collection(`${this.path}`).doc(id).update(value).catch(error => {
+      this.messageService.showMessage('Unable to update item.');
+    });
   }
 
   delete(id: string) {
-    return this.firestore.collection(`${this.path}`).doc(id).delete();
+    return this.firestore.collection(`${this.path}`).doc(id).delete().catch(error => {
+      this.messageService.showMessage('Unable to delete item.');
+    });
   }
 
   batch() {
