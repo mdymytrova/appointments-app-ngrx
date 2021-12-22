@@ -3,6 +3,12 @@
     <button mat-raised-button color="primary" [routerLink]="['create']">Add</button>
 </div>
 <mat-divider></mat-divider>
+<div>
+    <mat-form-field>
+        <mat-icon matPrefix color="primary">search</mat-icon>
+        <input matInput autocomplete="off" type="text" [formControl]="search">
+    </mat-form-field>
+</div>
 <div *ngIf="(providers$ | async) as providers">
     <mat-card *ngFor="let provider of providers" class="item-list-card">
         <div>

@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
-import { tap } from 'rxjs/operators';
+import { throwError } from 'rxjs';
+import { catchError, tap } from 'rxjs/operators';
+import { MessagesService } from '../../../messages/messages.service';
 import { ServiceProvider } from '../../interfaces/provider.interface';
 import { ProvidersFirestore } from './providers.firestore';
 import { ProvidersStore } from './providers.store';
