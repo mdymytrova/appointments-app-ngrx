@@ -2,6 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin, Observable, Subscription } from 'rxjs';
+import { tap } from 'rxjs/operators';
 import { MessagesService } from '../../../messages/messages.service';
 import { ServiceCategory } from '../../interfaces/category.interface';
 import { ManagementService } from '../../interfaces/service.interface';
@@ -56,28 +57,30 @@ export class ManagementServiceFormComponent implements OnInit, OnDestroy {
     this.initialFormValue = { ...this.form.value };
 
     this.serviceFormDataSubscription = forkJoin({
-      selelectedCategory: this.serviceCategoriesApiService.selectedCategory$,
+      selectedCategory: this.serviceCategoriesApiService.selectedCategory$,
       selectedService: this.managementServicesApiService.selectedService$
-    }).subscribe(({selectedService, selelectedCategory}) => {
-      this.selectedCategory = selelectedCategory;
-
-      if (selelectedCategory) {
-        this.form.patchValue({ category: selelectedCategory });
-      }
-
-      if (selectedService) {
-        this.form.patchValue({
-          name: selectedService.name,
-          description: selectedService.description,
-          category: selectedService.category
-        });
-        this.duration?.patchValue({
-          hours: selectedService.duration.hours,
-          minutes: selectedService.duration.minutes
-        });
-      }
-      this.initialFormValue = { ...this.form.value };
-    });
+    }).pipe(
+      tap(({selectedService, selectedCategory}) => {
+        this.selectedCategory = selectedCategory;
+  
+        if (selectedCategory) {
+          this.form.patchValue({ category: selectedCategory });
+        }
+  
+        if (selectedService) {
+          this.form.patchValue({
+            name: selectedService.name,
+            description: selectedService.description,
+            category: selectedService.category || selectedCategory
+          });
+          this.duration?.patchValue({
+            hours: selectedService.duration.hours,
+            minutes: selectedService.duration.minutes
+          });
+        }
+        this.initialFormValue = { ...this.form.value };
+      })
+    ).subscribe();
     this.serviceCategories$ = this.serviceCategoriesApiService.serviceCategories$;
   }
 
