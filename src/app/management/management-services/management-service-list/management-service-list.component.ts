@@ -1,6 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Observable } from 'rxjs';
+import { MessagesService } from '../../../messages/messages.service';
 import { ServiceCategory } from '../../interfaces/category.interface';
 import { ManagementService } from '../../interfaces/service.interface';
 import { ManagementServicesApiService } from '../services/management-services-api.service';
@@ -15,7 +16,12 @@ export class ManagementServiceListComponent implements OnInit, OnDestroy {
   selectedCategory$!: Observable<ServiceCategory | null>;
   managementServices$!: Observable<ManagementService[]>;
 
-  constructor(private route: ActivatedRoute, private router: Router, private managementServicesApiService: ManagementServicesApiService, private serviceCategoriesApiService: ServiceCategoriesApiService) { }
+  constructor(
+    private route: ActivatedRoute,
+    private managementServicesApiService: ManagementServicesApiService,
+    private serviceCategoriesApiService: ServiceCategoriesApiService,
+    private messagesService: MessagesService
+  ) { }
 
   ngOnInit(): void {
     this.selectedCategory$ = this.serviceCategoriesApiService.selectedCategory$;
@@ -28,7 +34,9 @@ export class ManagementServiceListComponent implements OnInit, OnDestroy {
   ngOnDestroy() { }
 
   public onDelete(service: ManagementService) {
-    this.managementServicesApiService.deleteService(service?.id as string);
+    this.managementServicesApiService.deleteService(service?.id as string).catch(() => {
+      this.messagesService.showMessage('Unable to delete service.');
+    });
   }
 
 }

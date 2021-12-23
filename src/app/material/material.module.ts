@@ -24,9 +24,10 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatListModule } from '@angular/material/list';
 import { MatTreeModule } from '@angular/material/tree';
 import { MatTableModule } from '@angular/material/table';
+import { MessagesComponent } from '../messages/messages.component';
 
 @NgModule({
-  declarations: [],
+  declarations: [MessagesComponent],
   imports: [
     CommonModule,
     MatFormFieldModule,
@@ -77,7 +78,8 @@ import { MatTableModule } from '@angular/material/table';
     MatAutocompleteModule,
     MatListModule,
     MatTreeModule,
-    MatTableModule
+    MatTableModule,
+    MessagesComponent
   ]
 })
 export class MaterialModule { }

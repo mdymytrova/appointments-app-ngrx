@@ -27,21 +27,15 @@ export abstract class FirestoreService<T> {
 
   create(value: Partial<T>) {
     const id = this.firestore.createId();
-    return this.firestore.collection(`${this.path}`).doc(id).set(Object.assign({}, { id }, value)).catch(error => {
-      this.messageService.showMessage('Unable to create item.');
-    });
+    return this.firestore.collection(`${this.path}`).doc(id).set(Object.assign({}, { id }, value));
   }
 
   update(id: string, value: T) {
-    return this.firestore.collection(`${this.path}`).doc(id).update(value).catch(error => {
-      this.messageService.showMessage('Unable to update item.');
-    });
+    return this.firestore.collection(`${this.path}`).doc(id).update(value);
   }
 
   delete(id: string) {
-    return this.firestore.collection(`${this.path}`).doc(id).delete().catch(error => {
-      this.messageService.showMessage('Unable to delete item.');
-    });
+    return this.firestore.collection(`${this.path}`).doc(id).delete();
   }
 
   batch() {

@@ -1,0 +1,8 @@
+<ng-container *ngIf="(message$ | async) as message">
+    <mat-card class="messages-container" *ngIf="showMessage">
+        <p class="message">{{message}}</p>
+        <button mat-icon-button (click)="onClose()">
+            <mat-icon>close</mat-icon>
+        </button>
+    </mat-card>
+</ng-container>

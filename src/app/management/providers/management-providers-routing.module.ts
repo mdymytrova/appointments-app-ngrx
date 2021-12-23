@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { ProviderFormComponent } from './provider-form/provider-form.component';
 import { ProviderListComponent } from './provider-list/provider-list.component';
+import { ProviderEditGuard } from './services/provider-edit.guard';
 
 const routes: Routes = [
   {
@@ -16,7 +17,8 @@ const routes: Routes = [
   {
     path: ':id/edit',
     component: ProviderFormComponent,
-    data: { mode: 'edit' }
+    data: { mode: 'edit' },
+    canActivate: [ProviderEditGuard]
   }
 ];
 

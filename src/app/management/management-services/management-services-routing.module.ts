@@ -3,6 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { ManagementServiceFormComponent} from './management-service-form/management-service-form.component';
 import { ManagementServiceListComponent } from './management-service-list/management-service-list.component';
 import { ManagementServicesHomeComponent } from './management-services-home/management-services-home.component';
+import { ServiceEditGuard } from './services/service-edit.guard';
 
 const routes: Routes = [
   {
@@ -24,7 +25,8 @@ const routes: Routes = [
           {
             path: ':id/edit',
             component: ManagementServiceFormComponent,
-            data: { mode: 'edit' }
+            data: { mode: 'edit' },
+            canActivate: [ServiceEditGuard]
           },
           {
             path: '',

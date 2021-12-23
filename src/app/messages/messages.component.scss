@@ -1,0 +1,15 @@
+.messages {
+    &-container {
+        color: #a94442;
+        background-color: #f2dede;
+        border: 1px solid #ebccd1;
+        padding: 0.5rem 1rem;
+        display: flex;
+        justify-content: space-between;
+
+        .message {
+            margin: 0;
+            line-height: 40px;
+        }
+    }
+}

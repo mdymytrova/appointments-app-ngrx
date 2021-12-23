@@ -3,6 +3,7 @@ import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable } from 'rxjs';
+import { MessagesService } from '../../../messages/messages.service';
 import { ServiceCategory } from '../../interfaces/category.interface';
 import { CategoryFormDialogComponent } from '../category-form-dialog/category-form-dialog.component';
 import { ManagementServicesApiService } from '../services/management-services-api.service';
@@ -24,7 +25,8 @@ export class ManagementServicesHomeComponent implements OnInit, OnDestroy {
     private managementServicesApiService: ManagementServicesApiService,
     private dialog: MatDialog,
     private changeDetectorRef: ChangeDetectorRef,
-    private media: MediaMatcher
+    private media: MediaMatcher,
+    private messagesService: MessagesService
   ) {
     this.mobileQuery = media.matchMedia('(max-width: 1100px)');
     this.mobileQueryListener = () => changeDetectorRef.detectChanges();
@@ -37,6 +39,7 @@ export class ManagementServicesHomeComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.serviceCategoriesApiService.setSelectedCategory(null);
+    this.messagesService.showMessage(null);
   }
 
   private mobileQueryListener: () => void;
@@ -53,6 +56,8 @@ export class ManagementServicesHomeComponent implements OnInit, OnDestroy {
     this.serviceCategoriesApiService.deleteServiceCategory(category.id as string)
       .then(() => {
         this.managementServicesApiService.deleteServiceCategory(category.id as string);
+      }, () => {
+        this.messagesService.showMessage('Unable to delete service category.');
       });
       this.router.navigate(['categories'], { relativeTo: this.route });
   }

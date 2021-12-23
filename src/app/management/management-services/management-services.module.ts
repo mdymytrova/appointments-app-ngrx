@@ -7,6 +7,7 @@ import { ManagementServicesHomeComponent } from './management-services-home/mana
 import { ManagementServiceListComponent } from './management-service-list/management-service-list.component';
 import { ManagementServiceFormComponent } from './management-service-form/management-service-form.component';
 import { CategoryFormDialogComponent } from './category-form-dialog/category-form-dialog.component';
+import { MessagesService } from '../../messages/messages.service';
 
 @NgModule({
   declarations: [
@@ -21,6 +22,7 @@ import { CategoryFormDialogComponent } from './category-form-dialog/category-for
     ReactiveFormsModule,
     FormsModule,
     ManagementServicesRoutingModule
-  ]
+  ],
+  providers: [MessagesService]
 })
 export class ManagementServicesModule { }
