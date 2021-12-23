@@ -1,31 +1,40 @@
-import { Directive, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { Subscription } from 'rxjs';
+import { Observable } from 'rxjs';
+import { tap } from 'rxjs/operators';
 import { DialogComponent } from './dialog.component';
 import { MessagesService } from './messages.service';
 
-@Directive({
+@Component({
   selector: 'app-messages',
+  templateUrl: './messages.component.html',
+  styleUrls: ['./messages.component.scss']
 })
 export class MessagesComponent implements OnInit, OnDestroy {
-  messagesSubscription!: Subscription;
+  @Input() mode: string = 'notification';
+  showMessage: boolean = false;
+  message$!: Observable<string | null>;
+
   constructor(
-    private messageService: MessagesService,
+    public messageService: MessagesService,
     private dialog: MatDialog
   ) { }
 
   ngOnInit(): void {
-    this.messagesSubscription = this.messageService.messages$.subscribe((message) => {
-      if (message) {
-        this.dialog.open(DialogComponent, { data: message });
-      }
-    })
+    this.message$ = this.messageService.messages$.pipe(
+      tap((message) => {
+        this.showMessage = !!message && this.mode == 'notification';
+        if(!!message && this.mode === 'dialog') {
+          this.dialog.open(DialogComponent, { data: message });
+        }
+      })
+    )
   }
 
-  ngOnDestroy() {
-    if (this.messagesSubscription) {
-      this.messagesSubscription.unsubscribe();
-    }
+  ngOnDestroy() {}
+
+  onClose() {
+    this.showMessage = false;
   }
 
 }

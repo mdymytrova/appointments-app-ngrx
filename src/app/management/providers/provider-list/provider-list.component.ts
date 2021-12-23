@@ -2,13 +2,15 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { debounceTime, distinctUntilChanged, map, startWith, switchMap } from 'rxjs/operators';
+import { MessagesService } from '../../../messages/messages.service';
 import { ServiceProvider } from '../../interfaces/provider.interface';
 import { ManagementProvidersApiService } from '../services/providers-api.service';
 
 @Component({
   selector: 'app-provider-list',
   templateUrl: './provider-list.component.html',
-  styleUrls: ['./provider-list.component.scss']
+  styleUrls: ['./provider-list.component.scss'],
+  providers: [MessagesService]
 })
 export class ProviderListComponent implements OnInit, OnDestroy {
   providers$!: Observable<ServiceProvider[]>;
@@ -17,6 +19,7 @@ export class ProviderListComponent implements OnInit, OnDestroy {
   
   constructor(
     private managementProviersApiService: ManagementProvidersApiService,
+    private messageService: MessagesService
   ) { }
 
   ngOnInit(): void {
@@ -46,6 +49,8 @@ export class ProviderListComponent implements OnInit, OnDestroy {
   public ngOnDestroy() { }
 
   public onDelete(provider: ServiceProvider) {
-    this.managementProviersApiService.deleteProvider(provider?.id as string);
+    this.managementProviersApiService.deleteProvider(provider?.id as string).catch((err) => {
+      this.messageService.showMessage('Unable to delete provider.');
+    });
   }
 }

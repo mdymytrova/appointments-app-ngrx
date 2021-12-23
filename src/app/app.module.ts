@@ -10,15 +10,14 @@ import { LoginComponent } from './login/login.component';
 import { HomeComponent } from './home/home.component';
 import { HeaderComponent } from './header/header.component';
 import { MaterialModule } from './material/material.module';
-import { MessagesComponent } from './messages/messages.component';
+import { MessagesService } from './messages/messages.service';
 
 @NgModule({
   declarations: [
     AppComponent,
     LoginComponent,
     HomeComponent,
-    HeaderComponent,
-    MessagesComponent
+    HeaderComponent
   ],
   imports: [
     BrowserModule,
@@ -29,7 +28,7 @@ import { MessagesComponent } from './messages/messages.component';
     AppRoutingModule,
     CoreModule
   ],
-  providers: [],
+  providers: [MessagesService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

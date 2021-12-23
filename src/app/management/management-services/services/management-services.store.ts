@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { first, map } from 'rxjs/operators';
 import { StoreServiceNew } from '../../../core/services/store-new.service';
 import { StoreService } from '../../../core/services/store.service';
 import { ServiceCategory } from '../../interfaces/category.interface';
@@ -23,7 +24,7 @@ export class ManagementServicesStore extends StoreServiceNew<IManagementServices
     selectedCategory$ = this.select(state => {
         const found = state.serviceCategories.find(item => item.id === state.selectedCategoryId);
         return found || {id: 'general', name: 'General'};
-    });
+    }).pipe(map(category => category), first());
     selectedServicesByCategory$ = this.select(state => {
         if (state.selectedCategoryId == 'general') {
             return state.services.filter(item => {
@@ -39,7 +40,7 @@ export class ManagementServicesStore extends StoreServiceNew<IManagementServices
     selectedService$ = this.select(state => {
         const found = state.services.find(item => item.id === state.selectedServiceId);
         return found || null;
-    });
+    }).pipe(map(service => service), first());
 
     constructor() {
         super({

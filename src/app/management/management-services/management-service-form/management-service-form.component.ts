@@ -1,7 +1,8 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Observable, Subscription } from 'rxjs';
+import { forkJoin, Observable, Subscription } from 'rxjs';
+import { MessagesService } from '../../../messages/messages.service';
 import { ServiceCategory } from '../../interfaces/category.interface';
 import { ManagementService } from '../../interfaces/service.interface';
 import { ManagementServicesApiService } from '../services/management-services-api.service';
@@ -23,12 +24,17 @@ export class ManagementServiceFormComponent implements OnInit, OnDestroy {
   private initialFormValue!: ManagementService;
   serviceCategories$!: Observable<ServiceCategory[]>;
   service$!: Observable<ManagementService>;
-  selectedCategorySubscription!: Subscription;
   selectedCategory!: ServiceCategory | null;
-  selectedServiceSubscription!: Subscription;
-  private service!: ManagementService | null;
+  private serviceFormDataSubscription!: Subscription;
 
-  constructor(private formBuilder: FormBuilder, private managementServicesApiService: ManagementServicesApiService, private route: ActivatedRoute, private router: Router, private serviceCategoriesApiService: ServiceCategoriesApiService) { }
+  constructor(
+    private formBuilder: FormBuilder,
+    private managementServicesApiService: ManagementServicesApiService,
+    private route: ActivatedRoute,
+    private router: Router,
+    private serviceCategoriesApiService: ServiceCategoriesApiService,
+    private messagesService: MessagesService
+  ) { }
 
   public get duration() {
     return this.form.get('duration');
@@ -49,39 +55,35 @@ export class ManagementServiceFormComponent implements OnInit, OnDestroy {
 
     this.initialFormValue = { ...this.form.value };
 
-    this.selectedCategorySubscription = this.serviceCategoriesApiService.selectedCategory$.subscribe((data) => {
-      this.selectedCategory = data;
-      if (this.form) {
-        this.form.patchValue({
-          category: this.selectedCategory
-        });
-      }
-    });
+    this.serviceFormDataSubscription = forkJoin({
+      selelectedCategory: this.serviceCategoriesApiService.selectedCategory$,
+      selectedService: this.managementServicesApiService.selectedService$
+    }).subscribe(({selectedService, selelectedCategory}) => {
+      this.selectedCategory = selelectedCategory;
 
-    this.selectedServiceSubscription = this.managementServicesApiService.selectedService$.subscribe(data => {
-      this.service = data;
-      if (this.service) {
+      if (selelectedCategory) {
+        this.form.patchValue({ category: selelectedCategory });
+      }
+
+      if (selectedService) {
         this.form.patchValue({
-          name: this.service.name,
-          description: this.service.description,
-          category: (this.service.category || {id: 'general', name: 'None'})
+          name: selectedService.name,
+          description: selectedService.description,
+          category: selectedService.category
         });
         this.duration?.patchValue({
-          hours: this.service.duration.hours,
-          minutes: this.service.duration.minutes
+          hours: selectedService.duration.hours,
+          minutes: selectedService.duration.minutes
         });
-        this.initialFormValue = { ...this.form.value };
       }
-    })
+      this.initialFormValue = { ...this.form.value };
+    });
     this.serviceCategories$ = this.serviceCategoriesApiService.serviceCategories$;
   }
 
   ngOnDestroy() {
-    if (this.selectedCategorySubscription) {
-      this.selectedCategorySubscription.unsubscribe();
-    }
-    if (this.selectedServiceSubscription) {
-      this.selectedServiceSubscription.unsubscribe();
+    if (this.serviceFormDataSubscription) {
+      this.serviceFormDataSubscription.unsubscribe();
     }
   }
 
@@ -126,6 +128,8 @@ export class ManagementServiceFormComponent implements OnInit, OnDestroy {
       category: category.id === 'general' ? '' : category
     }).then(() => {
       this.navigateBack();
+    }, () => {
+      this.messagesService.showMessage('Unable to create service.');
     });
   }
 
@@ -138,6 +142,8 @@ export class ManagementServiceFormComponent implements OnInit, OnDestroy {
       category: category.id === 'general' ? '' : category
     }, this.route.snapshot.paramMap.get('id') as string).then(() => {
       this.navigateBack();
+    }, () => {
+      this.messagesService.showMessage('Unable to edit service.');
     });
   }
 

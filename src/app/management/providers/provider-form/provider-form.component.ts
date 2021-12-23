@@ -2,7 +2,9 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { withLatestFrom } from 'rxjs/operators';
 import { DayLabel } from '../../../enums';
+import { MessagesService } from '../../../messages/messages.service';
 import { DaySchedule, ServiceProvider, ServiceProviderContactInfo, ServiceProviderService, ServiceView } from '../../interfaces/provider.interface';
 import { ManagementService } from '../../interfaces/service.interface';
 import { ManagementServicesApiService } from '../../management-services/services/management-services-api.service';
@@ -10,19 +12,24 @@ import { ManagementProvidersApiService } from '../services/providers-api.service
 @Component({
   selector: 'app-provider-form',
   templateUrl: './provider-form.component.html',
-  styleUrls: ['./provider-form.component.scss']
+  styleUrls: ['./provider-form.component.scss'],
+  providers: [MessagesService]
 })
 export class ProviderFormComponent implements OnInit, OnDestroy {
   public form!: FormGroup;
   public mode!: string;
   public daysConfigurationError: string[] | null = null;
   private initialFormValue!: ServiceProvider;
-  private services: ManagementService[] = [];
-  private servicesSubscription!: Subscription;
-  private provider!: ServiceProvider | null;
-  private providersSubscription!: Subscription;
+  private formDataSubscription!: Subscription;
 
-  constructor(private formBuilder: FormBuilder, private route: ActivatedRoute, private managementServicesApiService: ManagementServicesApiService, private managementProvidersApiService: ManagementProvidersApiService, private router: Router) {
+  constructor(
+    private formBuilder: FormBuilder,
+    private route: ActivatedRoute,
+    private managementServicesApiService: ManagementServicesApiService,
+    private managementProvidersApiService: ManagementProvidersApiService,
+    private router: Router,
+    private messageService: MessagesService
+  ) {
     this.mode = this.route.snapshot.data['mode'];
   }
 
@@ -51,45 +58,24 @@ export class ProviderFormComponent implements OnInit, OnDestroy {
       schedule: this.formBuilder.array(this.getDaysControls())
     });
 
-    this.servicesSubscription = this.managementServicesApiService.managementServices$.subscribe(services => {
-      this.services = services;
-      if (this.services && this.services.length) {
-        this.form.setControl('services', this.formBuilder.array(this.getServicesControls()));
+    this.formDataSubscription = this.managementServicesApiService.managementServices$
+      .pipe(
+        withLatestFrom(this.managementProvidersApiService.selectedProvider$)
+      ).subscribe(([services, provider]) => {
+        this.setServicesControls(services);
+        if (provider) {
+          this.patchFormWithProviderData(provider);
+        }
         this.initialFormValue = { ...this.form.value };
-      }
-    });
-
-    this.providersSubscription = this.managementProvidersApiService.selectedProvider$.subscribe(provider => {
-      this.provider = provider;
-      if (this.provider) {
-        this.form.patchValue({
-          contactInfo: this.provider.contactInfo
-        });
-        this.provider.schedule.forEach((schedule: DaySchedule) => {
-          (<FormArray>this.form.get('schedule'))?.at(parseInt(schedule.day)).patchValue({
-            ...schedule
-          });
-        });
-        this.provider.services.forEach((service) => {
-          const serviceIndex = this.servicesControls.findIndex(control => control.value?.id == service?.id);
-          if (serviceIndex >= 0) {
-            this.servicesControl.at(serviceIndex).patchValue({ checked: true })
-          }
-        });
-        this.initialFormValue = { ...this.form.value };
-      }
-    });
+      });
   }
 
   ngOnDestroy() {
-    if (this.providersSubscription) {
-      this.providersSubscription.unsubscribe();
-    }
-    if (this.servicesSubscription) {
-      this.servicesSubscription.unsubscribe();
+    if (this.formDataSubscription) {
+      this.formDataSubscription.unsubscribe();
     }
   }
-
+  
   public onSave() {
     if (this.form.valid) {
       const { contactInfo, services, schedule } = this.form.value;
@@ -102,17 +88,19 @@ export class ProviderFormComponent implements OnInit, OnDestroy {
         }
       }
     } else {
-      this.form.get('name')?.markAsTouched();
+      this.form.get('contactInfo.firstName')?.markAsTouched();
+      this.form.get('contactInfo.lastName')?.markAsTouched();
     }
   }
-
+  
   public onDiscard() {
     this.form.patchValue({
       contactInfo: this.initialFormValue?.contactInfo,
       services: this.initialFormValue?.services,
       schedule: this.initialFormValue?.schedule
     });
-    this.form.get('name')?.markAsUntouched();
+    this.form.get('contactInfo.firstName')?.markAsUntouched();
+    this.form.get('contactInfo.lastName')?.markAsUntouched();
     this.daysConfigurationError = null;
   }
 
@@ -130,15 +118,36 @@ export class ProviderFormComponent implements OnInit, OnDestroy {
       return group;
     });
   }
+  
+  private setServicesControls(services: ManagementService[] = []) {
+    this.form.setControl('services', this.formBuilder.array(this.getServicesControls(services)));
+  }
 
-  private getServicesControls() {
-    return this.services.map((availableService) => {
+  private getServicesControls(services: ManagementService[]) {
+    return services.map((availableService) => {
       const group = this.formBuilder.group({
         name: [availableService.name],
         checked: [false],
         id: [availableService.id]
       });
       return group;
+    });
+  }
+
+  private patchFormWithProviderData(provider: ServiceProvider) {
+    this.form.patchValue({
+      contactInfo: provider.contactInfo
+    });
+    provider.schedule.forEach((schedule: DaySchedule) => {
+      (<FormArray>this.form.get('schedule'))?.at(parseInt(schedule.day)).patchValue({
+        ...schedule
+      });
+    });
+    provider.services.forEach((service) => {
+      const serviceIndex = this.servicesControls.findIndex(control => control.value?.id == service?.id);
+      if (serviceIndex >= 0) {
+        this.servicesControl.at(serviceIndex).patchValue({ checked: true })
+      }
     });
   }
 
@@ -172,6 +181,8 @@ export class ProviderFormComponent implements OnInit, OnDestroy {
       schedule: this.mapScheduleForSave(schedule),
     }).then((data) => {
       this.router.navigate(['../'], {relativeTo: this.route});
+    }, (err) => {
+      this.messageService.showMessage('Unable to create provider.');
     });
   }
 
@@ -182,6 +193,8 @@ export class ProviderFormComponent implements OnInit, OnDestroy {
       schedule: this.mapScheduleForSave(schedule)
     }, this.route.snapshot.paramMap.get('id') as string).then((data) => {
       this.router.navigate(['../../'], { relativeTo: this.route });
+    }, (err) => {
+      this.messageService.showMessage('Unable to update provider.');
     });
   }
 
