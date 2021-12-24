@@ -61,8 +61,8 @@
 
     <p><a [routerLink]="" (click)="onFormSelect()">{{ isSignIn ? 'New to the app? Sign up.' : 'Already have an account? Sign in.'}}</a></p>
 
-    <mat-error *ngIf="errorMessage">
-        {{ errorMessage }}
+    <mat-error *ngIf="(authService.error$ | async) as error">
+        {{ error }}
     </mat-error>
     
     <button

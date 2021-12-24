@@ -6,16 +6,19 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CoreModule } from './core/core.module';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { LoginComponent } from './login/login.component';
 import { HomeComponent } from './home/home.component';
 import { HeaderComponent } from './header/header.component';
 import { MaterialModule } from './material/material.module';
 import { MessagesService } from './messages/messages.service';
+import { environment } from '../environments/environment';
+import { AuthModule } from './auth/auth.module';
+import { StoreModule } from '@ngrx/store';
+import { reducers, metaReducers } from './reducers';
+import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 
 @NgModule({
   declarations: [
     AppComponent,
-    LoginComponent,
     HomeComponent,
     HeaderComponent
   ],
@@ -26,7 +29,12 @@ import { MessagesService } from './messages/messages.service';
     FormsModule,
     MaterialModule,
     AppRoutingModule,
-    CoreModule
+    CoreModule,
+    AuthModule.forRoot(),
+    StoreModule.forRoot(reducers, {
+      metaReducers
+    }),
+    StoreDevtoolsModule.instrument({ maxAge: 25, logOnly: environment.production })
   ],
   providers: [MessagesService],
   bootstrap: [AppComponent]

@@ -109,5 +109,8 @@
       }
     }
   },
-  "defaultProject": "appointments-app"
+  "defaultProject": "appointments-app",
+  "cli": {
+    "defaultCollection": "@ngrx/schematics"
+  }
 }

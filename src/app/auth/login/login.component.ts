@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { AuthService } from '../services/auth.service';
+import { Router } from '@angular/router';
+import { AuthService } from '../auth.service';
 
 @Component({
   selector: 'app-login',
@@ -9,12 +9,15 @@ import { AuthService } from '../services/auth.service';
   styleUrls: ['./login.component.scss']
 })
 export class LoginComponent implements OnInit, OnDestroy {
-  public loginForm!: FormGroup;
-  public signUpForm!: FormGroup;
-  public isSignIn!: boolean;
-  public errorMessage!: string | null;
+  loginForm!: FormGroup;
+  signUpForm!: FormGroup;
+  isSignIn!: boolean;
 
-  constructor(private authService: AuthService, private formBuilder: FormBuilder, private auth: AngularFireAuth) { 
+  constructor(
+    public authService: AuthService,
+    private formBuilder: FormBuilder,
+    private router: Router
+  ) {
     this.isSignIn = true;
   }
 
@@ -31,7 +34,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     });
   }
 
-  public ngOnDestroy() {}
+  ngOnDestroy(): void { }
 
   public onFormSelect() {
     this.isSignIn = !this.isSignIn;
@@ -40,27 +43,15 @@ export class LoginComponent implements OnInit, OnDestroy {
     } else {
       this.loginForm.reset();
     }
-    this.errorMessage = null;
   }
 
   public onSubmit() {
     const form = this.isSignIn ? this.loginForm : this.signUpForm;
-    if (!form.valid) {
-      return;
-    }
-
-    const { email, password, asAdmin } = form.value;
-    if (this.isSignIn) {
-      this.authService.login(email, password)
-        .then((errorMessage) => this.errorMessage = errorMessage);
-    } else {
-      this.authService.emailSignup(email, password, asAdmin)
-        .then(() => this.errorMessage = 'Permission to create an account is disabled at the moment.');
+    if (form.valid) {
+      const { email, password, asAdmin } = form.value;
+      const signUpParam = !this.isSignIn ? asAdmin : null;
+      this.authService.login(email, password, signUpParam);
     }
   }
   
-  public onSignOut() {
-    this.authService.logout();
-  }
-
 }
