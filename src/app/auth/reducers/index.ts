@@ -14,24 +14,114 @@ import { AuthActions } from '../action-types';
 export const authFeatureKey = 'auth';
 
 export interface AuthState {
-  user: User | null
+  user: User | null;
+  error: string | null;
+  loading: boolean;
 }
 
 export const initialAuthState: AuthState = {
-  user: null
+  user: null,
+  error: null,
+  loading: false
 };
 
 
 export const authReducer = createReducer(
   initialAuthState,
-  on(AuthActions.login, (state, action) => {
+  on(AuthActions.loginStart, (state, action) => {
     return {
-      user: action.user
+      ...state,
+      loading: true,
+      error: null
+    }
+  }),
+  on(AuthActions.loginSuccess, (state, action) => {
+    return {
+      ...state,
+      loading: false,
+      error: null,
+      user: {
+        email: action.email,
+        uid: action.uid,
+        admin: action.admin
+      }
+    }
+  }),
+  on(AuthActions.loginFail, (state, action) => {
+    return {
+      ...state,
+      error: action.message,
+      loading: false
+    }
+  }),
+  on(AuthActions.signupStart, (state, action) => {
+    return {
+      ...state,
+      loading: true,
+      error: null
+    }
+  }),
+  on(AuthActions.signupFail, (state, action) => {
+    return {
+      ...state,
+      loading: false,
+      error: action.message
+    }
+  }),
+  on(AuthActions.relogin, (state, action) => {
+    return {
+      ...state
     }
   }),
   on(AuthActions.logout, (state, action) => {
     return {
+      ...state,
       user: null
     }
-  })
+  }),
+  on(AuthActions.getAuthDataStart, (state, action) => {
+    return {
+      ...state,
+      loading: true
+    }
+  }),
+  on(AuthActions.getAuthDataFail, (state, action) => {
+    return {
+      ...state,
+      error: action.message,
+      loading: false
+    }
+  }),
+  on(AuthActions.noAuthData, (state, action) => {
+    return {
+      ...state,
+      user: null,
+      loading: false
+    }
+  }),
+  on(AuthActions.getUserDataStart, (state, action) => {
+    return {
+      ...state,
+      loading: true
+    }
+  }),
+  on(AuthActions.getUserDataFail, (state, action) => {
+    return {
+      ...state,
+      error: action.message,
+      loading: false
+    }
+  }),
+  on(AuthActions.setUserDataStart, (state, action) => {
+    return {
+      ...state
+    }
+  }),
+  on(AuthActions.setUserDataFail, (state, action) => {
+    return {
+      ...state,
+      error: action.message,
+      loading: false
+    }
+  }),
 );

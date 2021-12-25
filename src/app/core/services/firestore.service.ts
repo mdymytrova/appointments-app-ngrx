@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { AngularFirestore, QueryFn } from '@angular/fire/compat/firestore';
+import { AngularFirestore, AngularFirestoreDocument, QueryFn } from '@angular/fire/compat/firestore';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { MessagesService } from '../../messages/messages.service';
@@ -23,6 +23,10 @@ export abstract class FirestoreService<T> {
 
   doc$(id: string): Observable<T | undefined> {
     return this.firestore.doc<T>(`${this.path}/${id}`).valueChanges({ idField: 'id' });
+  }
+
+  doc(id: string): AngularFirestoreDocument<T> {
+    return this.firestore.doc<T>(`${this.path}/${id}`);
   }
 
   create(value: Partial<T>) {

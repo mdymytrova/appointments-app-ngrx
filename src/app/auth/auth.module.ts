@@ -8,6 +8,8 @@ import { AuthService } from './auth.service';
 import { AdminGuard } from './admin.guard';
 import { StoreModule } from '@ngrx/store';
 import * as fromAuth from './reducers';
+import { EffectsModule } from '@ngrx/effects';
+import { AuthEffects } from './auth.effects';
 
 @NgModule({
   declarations: [
@@ -19,7 +21,8 @@ import * as fromAuth from './reducers';
     ReactiveFormsModule,
     MaterialModule,
     RouterModule.forChild([{path: 'login', component: LoginComponent}]),
-    StoreModule.forFeature(fromAuth.authFeatureKey, fromAuth.authReducer)
+    StoreModule.forFeature(fromAuth.authFeatureKey, fromAuth.authReducer),
+    EffectsModule.forFeature([AuthEffects])
   ],
   exports: [LoginComponent]
 })
