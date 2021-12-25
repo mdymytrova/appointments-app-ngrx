@@ -25,6 +25,7 @@ import { MatListModule } from '@angular/material/list';
 import { MatTreeModule } from '@angular/material/tree';
 import { MatTableModule } from '@angular/material/table';
 import { MessagesComponent } from '../messages/messages.component';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @NgModule({
   declarations: [MessagesComponent],
@@ -53,7 +54,8 @@ import { MessagesComponent } from '../messages/messages.component';
     MatAutocompleteModule,
     MatListModule,
     MatTreeModule,
-    MatTableModule
+    MatTableModule,
+    MatProgressSpinnerModule
   ],
   exports: [
     MatFormFieldModule,
@@ -79,7 +81,8 @@ import { MessagesComponent } from '../messages/messages.component';
     MatListModule,
     MatTreeModule,
     MatTableModule,
-    MessagesComponent
+    MessagesComponent,
+    MatProgressSpinnerModule
   ]
 })
 export class MaterialModule { }

@@ -12,3 +12,13 @@ export const isAdmin = createSelector(
     user,
     user => !!user?.admin?.verified
 );
+
+export const errorMessage = createSelector(
+    selectAuthState,
+    auth => auth.error
+);
+
+export const loading = createSelector(
+    selectAuthState,
+    auth => auth.loading
+);

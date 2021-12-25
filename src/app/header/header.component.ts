@@ -2,6 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { select, Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { logout } from '../auth/auth.actions';
 import { user } from '../auth/auth.selectors';
 import { AuthService, User } from '../auth/auth.service';
 import * as fromApp from '../reducers';
@@ -32,7 +33,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void { }
 
   public onSignOut() {
-    this.authService.logout();
+    this.store.dispatch(logout())
   }
 
 }

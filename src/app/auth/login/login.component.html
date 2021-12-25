@@ -1,5 +1,5 @@
 <div class="login-container">
-    <form [formGroup]="loginForm" *ngIf="isSignIn" class="login-form">
+    <form [formGroup]="loginForm" *ngIf="isSignIn" class="login-form" (keydown.enter)="onSubmit()">
         <h2>Sign In</h2>
         <mat-form-field class="login-full-width" appearance="fill">
             <mat-label>Email</mat-label>
@@ -61,12 +61,12 @@
 
     <p><a [routerLink]="" (click)="onFormSelect()">{{ isSignIn ? 'New to the app? Sign up.' : 'Already have an account? Sign in.'}}</a></p>
 
-    <mat-error *ngIf="(authService.error$ | async) as error">
+    <mat-error *ngIf="(error$ | async) as error">
         {{ error }}
     </mat-error>
     
     <button
-        type="button"
+        type="submit"
         mat-raised-button
         color="primary"
         (click)="onSubmit()">{{ isSignIn ? 'Sign In' : 'Sign Up'}}

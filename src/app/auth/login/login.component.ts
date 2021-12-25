@@ -1,7 +1,12 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { Store } from '@ngrx/store';
 import { AuthService } from '../auth.service';
+import * as fromAppState from '../../reducers';
+import { loginStart, signupStart } from '../auth.actions';
+import { Observable, Subscription } from 'rxjs';
+import { errorMessage } from '../auth.selectors';
 
 @Component({
   selector: 'app-login',
@@ -12,13 +17,16 @@ export class LoginComponent implements OnInit, OnDestroy {
   loginForm!: FormGroup;
   signUpForm!: FormGroup;
   isSignIn!: boolean;
+  error$!: Observable<string | null>;
 
   constructor(
     public authService: AuthService,
     private formBuilder: FormBuilder,
-    private router: Router
+    private router: Router,
+    private store: Store<fromAppState.AppState>
   ) {
     this.isSignIn = true;
+    this.error$ = this.store.select(errorMessage);
   }
 
   public ngOnInit(): void {
@@ -49,8 +57,12 @@ export class LoginComponent implements OnInit, OnDestroy {
     const form = this.isSignIn ? this.loginForm : this.signUpForm;
     if (form.valid) {
       const { email, password, asAdmin } = form.value;
-      const signUpParam = !this.isSignIn ? asAdmin : null;
-      this.authService.login(email, password, signUpParam);
+      if (this.isSignIn) {
+        this.store.dispatch(loginStart({email, password}));
+      } else {
+        this.store.dispatch(signupStart({email, password, asAdmin}))
+      }
+
     }
   }
   
