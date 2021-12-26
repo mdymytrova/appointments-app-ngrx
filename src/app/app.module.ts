@@ -10,13 +10,12 @@ import { HomeComponent } from './home/home.component';
 import { HeaderComponent } from './header/header.component';
 import { MaterialModule } from './material/material.module';
 import { MessagesService } from './messages/messages.service';
-import { environment } from '../environments/environment';
 import { AuthModule } from './auth/auth.module';
 import { StoreModule } from '@ngrx/store';
 import { reducers, metaReducers } from './reducers';
-import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 import { EffectsModule } from '@ngrx/effects';
 import { LoadingComponent } from './loading/loading.component';
+import { storeDevModules } from './store-build';
 
 @NgModule({
   declarations: [
@@ -35,10 +34,16 @@ import { LoadingComponent } from './loading/loading.component';
     CoreModule,
     AuthModule.forRoot(),
     StoreModule.forRoot(reducers, {
-      metaReducers
+      metaReducers,
+      runtimeChecks: {
+        strictStateImmutability: true,
+        strictStateSerializability: true,
+        strictActionImmutability: true,
+        strictActionSerializability: true
+      }
     }),
-    StoreDevtoolsModule.instrument({ maxAge: 25, logOnly: environment.production }),
-    EffectsModule.forRoot([])
+    EffectsModule.forRoot([]),
+    storeDevModules
   ],
   providers: [MessagesService],
   bootstrap: [AppComponent]

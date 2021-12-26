@@ -1,3 +1,4 @@
+import { routerReducer } from '@ngrx/router-store';
 import {
   ActionReducer,
   ActionReducerMap,
@@ -9,11 +10,21 @@ import { environment } from '../../environments/environment';
 import * as fromAuth from '../auth/reducers';
 
 export interface AppState {
-  auth: fromAuth.AuthState
+  auth: fromAuth.AuthState,
+  router: 'router'
 }
 
 export const reducers: ActionReducerMap<AppState> = {
-  auth: fromAuth.authReducer
+  auth: fromAuth.authReducer,
+  router: routerReducer
 };
 
-export const metaReducers: MetaReducer<AppState>[] = !environment.production ? [] : [];
+export function logger(reducer: ActionReducer<any>): ActionReducer<any> {
+  return (state, action) => {
+    console.log('State before: ', state);
+    console.log('Action', action);
+    return reducer(state, action);
+  }
+}
+
+export const metaReducers: MetaReducer<AppState>[] = !environment.production ? [logger] : [];
