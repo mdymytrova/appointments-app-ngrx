@@ -2,7 +2,7 @@ import { createAction, props } from '@ngrx/store';
 import { User } from './auth.service';
 
 export const loginStart = createAction('[Auth Login Page] Login start', props<{email: string; password: string;}>());
-export const loginSuccess = createAction('[Auth Login page] Login Success', props<User>());
+export const loginSuccess = createAction('[Auth Login page] Login Success', props<{user: User, redirect: boolean}>());
 export const loginFail = createAction('[Auth Login Page] Login fail', props<{message: string}>());
 export const relogin = createAction('[Auth Home page] Relogin');
 export const logout = createAction('[Auth Header menu] Logout');

@@ -2,12 +2,11 @@ import { Injectable } from '@angular/core';
 import { AngularFirestoreDocument } from '@angular/fire/compat/firestore';
 import { Router } from '@angular/router';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { from, of } from 'rxjs';
+import { EMPTY, from, of } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import { AuthFirestore } from './auth.firestore';
 import { AuthService, User } from './auth.service';
 import { AuthActions } from './action-types';
-import { AngularFireAuth } from '@angular/fire/compat/auth';
 
 @Injectable()
 export class AuthEffects {
@@ -37,8 +36,12 @@ export class AuthEffects {
     loginSuccess$ = createEffect(() => 
         this.actions$.pipe(
             ofType(AuthActions.loginSuccess),
-            tap(() => {
-                return this.router.navigate(['']);
+            tap((data) => {
+                if (data.redirect) {
+                    return this.router.navigate(['']);
+                } else {
+                    return EMPTY;
+                }
             })
         ), { dispatch: false }
     );
@@ -49,7 +52,7 @@ export class AuthEffects {
             map(() => {
                 const userData = localStorage.getItem('userData');
                 if (userData) {
-                    return AuthActions.loginSuccess(JSON.parse(userData));
+                    return AuthActions.loginSuccess({user: JSON.parse(userData), redirect: false});
                 } else {
                     return AuthActions.logout();
                 }
@@ -121,7 +124,7 @@ export class AuthEffects {
                     map(authData => {
                         const userData = authData.data();
                         localStorage.setItem('userData', JSON.stringify(userData));
-                        return AuthActions.loginSuccess(userData as User);
+                        return AuthActions.loginSuccess({user: userData as User, redirect: true});
                     }),
                     catchError((errorResponse) => {
                         return of(AuthActions.getUserDataFail({message: errorResponse?.message || 'Unable to find user data.'}));
@@ -139,7 +142,7 @@ export class AuthEffects {
                 return from(userRef.set(user, { merge: true })).pipe(
                     map(() => {
                         localStorage.setItem('userData', JSON.stringify(user));
-                        return AuthActions.loginSuccess(user);
+                        return AuthActions.loginSuccess({user, redirect: true});
                     }),
                     catchError((errorResponse) => {
                         return of(AuthActions.setUserDataFail({message: errorResponse?.message || 'Unable to save user data.'}));

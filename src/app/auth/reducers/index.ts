@@ -35,15 +35,15 @@ export const authReducer = createReducer(
       error: null
     }
   }),
-  on(AuthActions.loginSuccess, (state, action) => {
+  on(AuthActions.loginSuccess, (state, {user}) => {
     return {
       ...state,
       loading: false,
       error: null,
       user: {
-        email: action.email,
-        uid: action.uid,
-        admin: action.admin
+        email: user.email,
+        uid: user.uid,
+        admin: user.admin
       }
     }
   }),
