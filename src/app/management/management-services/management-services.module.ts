@@ -8,6 +8,7 @@ import { ManagementServiceListComponent } from './management-service-list/manage
 import { ManagementServiceFormComponent } from './management-service-form/management-service-form.component';
 import { CategoryFormDialogComponent } from './category-form-dialog/category-form-dialog.component';
 import { MessagesService } from '../../messages/messages.service';
+import { SharedModule } from '../../shared/shared.module';
 
 @NgModule({
   declarations: [
@@ -21,6 +22,7 @@ import { MessagesService } from '../../messages/messages.service';
     MaterialModule,
     ReactiveFormsModule,
     FormsModule,
+    SharedModule,
     ManagementServicesRoutingModule
   ],
   providers: [MessagesService]

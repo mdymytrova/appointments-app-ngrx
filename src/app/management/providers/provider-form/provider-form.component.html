@@ -6,8 +6,8 @@
             <button mat-raised-button color="primary" type="button" (click)="onSave()">Save</button>
         </div>
     </div>
-    <app-messages></app-messages>
     <div class="management-container-inner">
+        <app-messages [message]="message$"></app-messages>
         <form [formGroup]="form" class="form-container">
             <div formGroupName="contactInfo">
                 <h3>Contact info</h3>

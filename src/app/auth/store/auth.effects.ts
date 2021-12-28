@@ -4,8 +4,8 @@ import { Router } from '@angular/router';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { EMPTY, from, of } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
-import { AuthFirestore } from './auth.firestore';
-import { AuthService, User } from './auth.service';
+import { AuthFirestore } from '../auth.firestore';
+import { AuthService, User } from '../auth.service';
 import { AuthActions } from './action-types';
 
 @Injectable()

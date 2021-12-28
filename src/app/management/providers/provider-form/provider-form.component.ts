@@ -1,14 +1,18 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { Update } from '@ngrx/entity';
+import { Store } from '@ngrx/store';
+import { Observable, Subscription } from 'rxjs';
 import { withLatestFrom } from 'rxjs/operators';
 import { DayLabel } from '../../../enums';
 import { MessagesService } from '../../../messages/messages.service';
+import { AppState } from '../../../store/reducers';
 import { DaySchedule, ServiceProvider, ServiceProviderContactInfo, ServiceProviderService, ServiceView } from '../../interfaces/provider.interface';
 import { ManagementService } from '../../interfaces/service.interface';
 import { ManagementServicesApiService } from '../../management-services/services/management-services-api.service';
-import { ManagementProvidersApiService } from '../services/providers-api.service';
+import { providerUpdateStart} from '../store/providers.actions';
+import { errorMessage, selectedProvider } from '../store/providers.selectors';
 @Component({
   selector: 'app-provider-form',
   templateUrl: './provider-form.component.html',
@@ -21,14 +25,15 @@ export class ProviderFormComponent implements OnInit, OnDestroy {
   public daysConfigurationError: string[] | null = null;
   private initialFormValue!: ServiceProvider;
   private formDataSubscription!: Subscription;
+  message$!: Observable<string | null>;
 
   constructor(
     private formBuilder: FormBuilder,
     private route: ActivatedRoute,
     private managementServicesApiService: ManagementServicesApiService,
-    private managementProvidersApiService: ManagementProvidersApiService,
     private router: Router,
-    private messageService: MessagesService
+    private messageService: MessagesService,
+    private store: Store<AppState>
   ) {
     this.mode = this.route.snapshot.data['mode'];
   }
@@ -46,7 +51,7 @@ export class ProviderFormComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.managementProvidersApiService.setSelectedProvider(this.route.snapshot.params['id']);
+    this.message$ = this.store.select(errorMessage);
     this.form = this.formBuilder.group({
       contactInfo: this.formBuilder.group({
         firstName: ['', Validators.required],
@@ -60,7 +65,7 @@ export class ProviderFormComponent implements OnInit, OnDestroy {
 
     this.formDataSubscription = this.managementServicesApiService.managementServices$
       .pipe(
-        withLatestFrom(this.managementProvidersApiService.selectedProvider$)
+        withLatestFrom(this.store.select(selectedProvider(this.route.snapshot.params['id'])))
       ).subscribe(([services, provider]) => {
         this.setServicesControls(services);
         if (provider) {
@@ -175,27 +180,28 @@ export class ProviderFormComponent implements OnInit, OnDestroy {
   }
 
   private createProvider(contactInfo: ServiceProviderContactInfo, services: ServiceView[], schedule: DaySchedule[]) {
-    this.managementProvidersApiService.createProvider({
-      contactInfo,
-      services: this.mapServicesForSave(services),
-      schedule: this.mapScheduleForSave(schedule),
-    }).then((data) => {
-      this.router.navigate(['../'], {relativeTo: this.route});
-    }, (err) => {
-      this.messageService.showMessage('Unable to create provider.');
-    });
+    // this.managementProvidersApiService.createProvider({
+    //   contactInfo,
+    //   services: this.mapServicesForSave(services),
+    //   schedule: this.mapScheduleForSave(schedule),
+    // }).then((data) => {
+    //   this.router.navigate(['../'], {relativeTo: this.route});
+    // }, (err) => {
+    //   this.messageService.showMessage('Unable to create provider.');
+    // });
   }
 
   private updateProvider(contactInfo: ServiceProviderContactInfo, services: ServiceView[], schedule: DaySchedule[]) {
-    this.managementProvidersApiService.updateProvider({
+    const updatedProvider = {
       contactInfo,
       services: this.mapServicesForSave(services),
       schedule: this.mapScheduleForSave(schedule)
-    }, this.route.snapshot.paramMap.get('id') as string).then((data) => {
-      this.router.navigate(['../../'], { relativeTo: this.route });
-    }, (err) => {
-      this.messageService.showMessage('Unable to update provider.');
-    });
+    }
+    const update: Update<ServiceProvider> = {
+      id: this.route.snapshot.paramMap.get('id') as string,
+      changes: updatedProvider
+    };
+    this.store.dispatch(providerUpdateStart({update}));
   }
 
   private mapServicesForSave(services: ServiceView[] = []) {

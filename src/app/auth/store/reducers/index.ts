@@ -1,45 +1,31 @@
-import {
-  ActionReducer,
-  ActionReducerMap,
-  createFeatureSelector,
-  createReducer,
-  createSelector,
-  MetaReducer,
-  on
-} from '@ngrx/store';
-import { environment } from '../../../environments/environment';
-import { User } from '../auth.service';
+import { createReducer, on } from '@ngrx/store';
+import { CallState, LoadingState } from '../../../store/reducers';
+import { User } from '../../auth.service';
 import { AuthActions } from '../action-types';
 
 export const authFeatureKey = 'auth';
-
 export interface AuthState {
   user: User | null;
-  error: string | null;
-  loading: boolean;
+  callState: CallState
 }
 
 export const initialAuthState: AuthState = {
   user: null,
-  error: null,
-  loading: false
+  callState: LoadingState.INIT
 };
-
 
 export const authReducer = createReducer(
   initialAuthState,
   on(AuthActions.loginStart, (state, action) => {
     return {
       ...state,
-      loading: true,
-      error: null
+      callState: LoadingState.LOADING
     }
   }),
   on(AuthActions.loginSuccess, (state, {user}) => {
     return {
       ...state,
-      loading: false,
-      error: null,
+      callState: LoadingState.LOADED,
       user: {
         email: user.email,
         uid: user.uid,
@@ -50,78 +36,76 @@ export const authReducer = createReducer(
   on(AuthActions.loginFail, (state, action) => {
     return {
       ...state,
-      error: action.message,
-      loading: false
+      callState: {errorMessage: action.message}
     }
   }),
   on(AuthActions.signupStart, (state, action) => {
     return {
       ...state,
-      loading: true,
-      error: null
+      callState: LoadingState.INIT
     }
   }),
   on(AuthActions.signupFail, (state, action) => {
     return {
       ...state,
-      loading: false,
-      error: action.message
+      callState: {errorMessage: action.message}
     }
   }),
   on(AuthActions.relogin, (state, action) => {
     return {
-      ...state
+      ...state,
+      callState: LoadingState.LOADED
     }
   }),
   on(AuthActions.logout, (state, action) => {
     return {
       ...state,
-      user: null
+      user: null,
+      callState: LoadingState.INIT
     }
   }),
   on(AuthActions.getAuthDataStart, (state, action) => {
     return {
       ...state,
-      loading: true
+      callState: LoadingState.LOADING
     }
   }),
   on(AuthActions.getAuthDataFail, (state, action) => {
     return {
       ...state,
       error: action.message,
-      loading: false
+      callState: {errorMessage: action.message}
     }
   }),
   on(AuthActions.noAuthData, (state, action) => {
     return {
       ...state,
       user: null,
-      loading: false
+      callState: LoadingState.LOADED
     }
   }),
   on(AuthActions.getUserDataStart, (state, action) => {
     return {
       ...state,
-      loading: true
+      callState: LoadingState.LOADING
     }
   }),
   on(AuthActions.getUserDataFail, (state, action) => {
     return {
       ...state,
-      error: action.message,
-      loading: false
+      callState: {errorMessage: action.message}
     }
   }),
   on(AuthActions.setUserDataStart, (state, action) => {
     return {
-      ...state
+      ...state,
+      callState: LoadingState.LOADING
     }
   }),
   on(AuthActions.setUserDataFail, (state, action) => {
     return {
       ...state,
-      error: action.message,
-      loading: false
+      callState: {errorMessage: action.message}
     }
   }),
 );

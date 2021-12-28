@@ -1,9 +1,10 @@
+<app-loading [loading]="loading$"></app-loading>
 <div class="management-toolbar management-toolbar-full-width">
     <h1>Service Providers</h1>
     <button mat-raised-button color="primary" [routerLink]="['create']">Add</button>
 </div>
 <mat-divider></mat-divider>
-<app-messages></app-messages>
+<app-messages [message]="message$"></app-messages>
 <div>
     <mat-form-field>
         <mat-icon matPrefix color="primary">search</mat-icon>

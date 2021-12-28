@@ -1,10 +1,12 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
+import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
 import { debounceTime, distinctUntilChanged, map, startWith, switchMap } from 'rxjs/operators';
 import { MessagesService } from '../../../messages/messages.service';
+import { AppState } from '../../../store/reducers';
 import { ServiceProvider } from '../../interfaces/provider.interface';
-import { ManagementProvidersApiService } from '../services/providers-api.service';
+import { errorMessage, loading, searchProviders } from '../store/providers.selectors';
 
 @Component({
   selector: 'app-provider-list',
@@ -14,43 +16,36 @@ import { ManagementProvidersApiService } from '../services/providers-api.service
 })
 export class ProviderListComponent implements OnInit, OnDestroy {
   providers$!: Observable<ServiceProvider[]>;
+  loading$!: Observable<boolean>;
+  message$!: Observable<string | null>;
   form!: FormGroup;
   search!: FormControl;
   
   constructor(
-    private managementProviersApiService: ManagementProvidersApiService,
-    private messageService: MessagesService
+    private messageService: MessagesService,
+    private store: Store<AppState>
   ) { }
 
   ngOnInit(): void {
     this.search = new FormControl('');
+    this.loading$ = this.store.select(loading);
+    this.message$ = this.store.select(errorMessage);
 
     this.providers$ = this.search.valueChanges.pipe(
       startWith(''),
       debounceTime(400),
       distinctUntilChanged(),
       switchMap(search => {
-        return this.filterProviders(search);
+        return this.store.select(searchProviders(search));
       })
     );
-  }
-
-  private filterProviders(search: string) {
-    return this.managementProviersApiService.providers$.pipe(
-      map(providers => {
-        return providers.filter(provider => {
-          const name = `${provider?.contactInfo?.firstName} ${provider?.contactInfo?.lastName}`.toLowerCase() || '';
-          return name.indexOf(search.toLowerCase()) >= 0;
-        })
-      })
-    )
   }
 
   public ngOnDestroy() { }
 
   public onDelete(provider: ServiceProvider) {
-    this.managementProviersApiService.deleteProvider(provider?.id as string).catch((err) => {
-      this.messageService.showMessage('Unable to delete provider.');
-    });
+    // this.managementProviersApiService.deleteProvider(provider?.id as string).catch((err) => {
+    //   this.messageService.showMessage('Unable to delete provider.');
+    // });
   }
 }

@@ -1,5 +1,5 @@
 import { createAction, props } from '@ngrx/store';
-import { User } from './auth.service';
+import { User } from '../auth.service';
 
 export const loginStart = createAction('[Auth Login Page] Login start', props<{email: string; password: string;}>());
 export const loginSuccess = createAction('[Auth Login page] Login Success', props<{user: User, redirect: boolean}>());

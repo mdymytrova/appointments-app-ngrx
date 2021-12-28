@@ -2,10 +2,10 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { select, Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { logout } from '../auth/auth.actions';
-import { user } from '../auth/auth.selectors';
 import { AuthService, User } from '../auth/auth.service';
-import * as fromApp from '../reducers';
+import { logout } from '../auth/store/auth.actions';
+import { user } from '../auth/store/auth.selectors';
+import { AppState } from '../store/reducers';
 
 @Component({
   selector: 'app-header',
@@ -20,7 +20,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   constructor(
     public authService: AuthService,
-    private store: Store<fromApp.AppState>
+    private store: Store<AppState>
     ) { }
 
   public ngOnInit(): void {

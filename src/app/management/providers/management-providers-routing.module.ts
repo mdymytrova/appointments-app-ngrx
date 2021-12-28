@@ -3,11 +3,15 @@ import { RouterModule, Routes } from '@angular/router';
 import { ProviderFormComponent } from './provider-form/provider-form.component';
 import { ProviderListComponent } from './provider-list/provider-list.component';
 import { ProviderEditGuard } from './services/provider-edit.guard';
+import { ProvidersResolver } from './services/providers.resolver';
 
 const routes: Routes = [
   {
     path: '',
     component: ProviderListComponent,
+    resolve: {
+      providers: ProvidersResolver
+    }
   },
   {
     path: 'create',

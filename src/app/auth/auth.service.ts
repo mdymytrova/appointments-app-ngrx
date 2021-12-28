@@ -1,10 +1,6 @@
 import { Injectable } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
-import { AngularFirestore } from '@angular/fire/compat/firestore';
-import { Router } from '@angular/router';
-import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
-import * as fromAppState from '../reducers';
 export interface User {
   uid: string;
   email: string;
@@ -17,12 +13,7 @@ export interface User {
 export class AuthService {
   authState$!: Observable<any>;
 
-  constructor(
-    private auth: AngularFireAuth,
-    private router: Router,
-    private firestore: AngularFirestore,
-    private store: Store<fromAppState.AppState>
-  ) {
+  constructor(private auth: AngularFireAuth) {
     this.authState$ = this.auth.authState;
   }
 

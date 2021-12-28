@@ -1,4 +1,5 @@
 import { createFeatureSelector, createSelector } from '@ngrx/store';
+import { getError, LoadingState } from '../../store/reducers';
 import * as fromAuth from './reducers';
 
 export const selectAuthState = createFeatureSelector<fromAuth.AuthState>(fromAuth.authFeatureKey);
@@ -15,10 +16,10 @@ export const isAdmin = createSelector(
 
 export const errorMessage = createSelector(
     selectAuthState,
-    auth => auth.error
+    auth => getError(auth.callState)
 );
 
 export const loading = createSelector(
     selectAuthState,
-    auth => auth.loading
+    auth => auth.callState === LoadingState.LOADING
 );
