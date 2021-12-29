@@ -1,4 +1,5 @@
 <div class="category-view">
+    <app-messages [message]="message$"></app-messages>
     <h2>{{ (selectedCategory$ | async)?.name }}</h2>
     <ng-container *ngIf="(managementServices$ | async) as services">
         <mat-card *ngFor="let service of services" class="item-list-card">

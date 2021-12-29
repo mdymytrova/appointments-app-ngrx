@@ -1,13 +1,12 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { forkJoin, Observable, Subscription } from 'rxjs';
-import { tap } from 'rxjs/operators';
-import { MessagesService } from '../../../messages/messages.service';
+import { Observable, of, Subscription } from 'rxjs';
+import { first, map, tap } from 'rxjs/operators';
 import { ServiceCategory } from '../../interfaces/category.interface';
 import { ManagementService } from '../../interfaces/service.interface';
-import { ManagementServicesApiService } from '../services/management-services-api.service';
-import { ServiceCategoriesApiService } from '../services/service-categories-api.service';
+import { ManagementServiceEntityService } from '../store/management-service-entity.service';
+import { ServiceCategoryEntityService } from '../store/service-category-entity.service';
 import { HOURS, MINUTES } from './time.constant';
 
 @Component({
@@ -26,15 +25,16 @@ export class ManagementServiceFormComponent implements OnInit, OnDestroy {
   serviceCategories$!: Observable<ServiceCategory[]>;
   service$!: Observable<ManagementService>;
   selectedCategory!: ServiceCategory | null;
+  message$!: Observable<string>;
   private serviceFormDataSubscription!: Subscription;
+  private saveSubscription!: Subscription;
 
   constructor(
     private formBuilder: FormBuilder,
-    private managementServicesApiService: ManagementServicesApiService,
     private route: ActivatedRoute,
     private router: Router,
-    private serviceCategoriesApiService: ServiceCategoriesApiService,
-    private messagesService: MessagesService
+    private managementServiceEntityService: ManagementServiceEntityService,
+    private serviceCategoryEntityService: ServiceCategoryEntityService,
   ) { }
 
   public get duration() {
@@ -42,7 +42,6 @@ export class ManagementServiceFormComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.managementServicesApiService.setSelectedService(this.route.snapshot.params['id']);
     this.mode = this.route.snapshot.data['mode'];
     this.form = this.formBuilder.group({
       name: ['', Validators.required],
@@ -56,47 +55,48 @@ export class ManagementServiceFormComponent implements OnInit, OnDestroy {
 
     this.initialFormValue = { ...this.form.value };
 
-    this.serviceFormDataSubscription = forkJoin({
-      selectedCategory: this.serviceCategoriesApiService.selectedCategory$,
-      selectedService: this.managementServicesApiService.selectedService$
-    }).pipe(
-      tap(({selectedService, selectedCategory}) => {
-        this.selectedCategory = selectedCategory;
-  
-        if (selectedCategory) {
-          this.form.patchValue({ category: selectedCategory });
-        }
-  
-        if (selectedService) {
-          this.form.patchValue({
-            name: selectedService.name,
-            description: selectedService.description,
-            category: selectedService.category || selectedCategory
-          });
-          this.duration?.patchValue({
-            hours: selectedService.duration.hours,
-            minutes: selectedService.duration.minutes
-          });
-        }
-        this.initialFormValue = { ...this.form.value };
-      })
-    ).subscribe();
-    this.serviceCategories$ = this.serviceCategoriesApiService.serviceCategories$;
+    this.serviceCategories$ = this.serviceCategoryEntityService.entities$;
+
+    if (this.mode === 'edit') {
+      this.serviceFormDataSubscription = this.managementServiceEntityService.getByKey(this.route.snapshot.params['id']).pipe(
+        first(),
+        tap(service => {
+          if (service) {
+            this.form.patchValue({
+              name: service.name, 
+              description: service.description,
+              category: service.category || {id: 'general', name: 'General'}
+            });
+            this.duration?.patchValue({
+              hours: service.duration.hours,
+              minutes: service.duration.minutes
+            });
+          }
+          this.initialFormValue = { ...this.form.value };
+        })
+      ).subscribe()
+    }
   }
 
   ngOnDestroy() {
     if (this.serviceFormDataSubscription) {
       this.serviceFormDataSubscription.unsubscribe();
     }
+    if (this.saveSubscription) {
+      this.saveSubscription.unsubscribe();
+    }
   }
 
   public onSave() {
     if (this.form.valid) {
-      if (this.mode === 'create') {
-        this.createService();
-      } else {
+      const onSave = this.mode === 'create' ?
+        this.createService() :
         this.editService();
-      }
+
+      this.saveSubscription = onSave.subscribe(
+        (data) => this.navigateBack(), 
+        (error) => this.message$ = of(`Unable to ${this.mode} a service.`)
+      );
     } else {
       this.form.get('name')?.markAsTouched();
     }
@@ -124,30 +124,25 @@ export class ManagementServiceFormComponent implements OnInit, OnDestroy {
 
   private createService() {
     const { name, description, duration, category } = this.form.value;
-    this.managementServicesApiService.createService({
-      name, 
+    const service = {
+      name,
       duration,
       description,
       category: category.id === 'general' ? '' : category
-    }).then(() => {
-      this.navigateBack();
-    }, () => {
-      this.messagesService.showMessage('Unable to create service.');
-    });
+    }
+    return this.managementServiceEntityService.add(service);
   }
 
   private editService() {
     const { name, description, duration, category } = this.form.value;
-    this.managementServicesApiService.updateService({
-      name, 
+    const service = {
+      id: this.route.snapshot.params['id'],
+      name,
       duration,
       description,
       category: category.id === 'general' ? '' : category
-    }, this.route.snapshot.paramMap.get('id') as string).then(() => {
-      this.navigateBack();
-    }, () => {
-      this.messagesService.showMessage('Unable to edit service.');
-    });
+    }
+    return this.managementServiceEntityService.update(service);
   }
 
   public compareWith(service1: any, service2: any): boolean {

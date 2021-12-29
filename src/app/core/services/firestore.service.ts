@@ -36,9 +36,13 @@ export abstract class FirestoreService<T> {
     return this.firestore.doc<T>(`${this.path}/${id}`);
   }
 
-  create(value: Partial<T>) {
-    const id = this.firestore.createId();
-    return this.firestore.collection(`${this.path}`).doc(id).set(Object.assign({}, { id }, value));
+  create(value: Partial<T>, id?: string) {
+    const newId = id || this.createId();
+    return this.firestore.collection(`${this.path}`).doc(id).set(Object.assign({}, { id: newId }, value));
+  }
+
+  createId() {
+    return this.firestore.createId();
   }
 
   update(id: string, value: Partial<T>) {

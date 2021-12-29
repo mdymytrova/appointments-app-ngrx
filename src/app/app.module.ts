@@ -17,6 +17,9 @@ import { HeaderComponent } from './header/header.component';
 import { MessagesService } from './messages/messages.service';
 import { reducers, metaReducers } from './store/reducers';
 import { storeDevModules } from './store-build';
+import { DefaultDataServiceConfig, EntityDataModule } from '@ngrx/data';
+import { HttpClientModule } from '@angular/common/http';
+import { environment } from '../environments/environment';
 
 @NgModule({
   declarations: [
@@ -27,6 +30,7 @@ import { storeDevModules } from './store-build';
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
+    HttpClientModule,
     ReactiveFormsModule,
     FormsModule,
     MaterialModule,
@@ -44,10 +48,13 @@ import { storeDevModules } from './store-build';
       }
     }),
     EffectsModule.forRoot([]),
+    EntityDataModule.forRoot({}),
     storeDevModules,
     StoreRouterConnectingModule.forRoot()
   ],
-  providers: [MessagesService],
+  providers: [
+    MessagesService
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

@@ -3,7 +3,6 @@
         <h1>Services</h1>
         <button mat-raised-button color="primary" [routerLink]="['categories', 'create']">Add</button>
     </div>
-
     <mat-drawer-container class="container" *ngIf="(serviceCategories$ | async) as serviceCategories">
         <mat-drawer mode="side" opened class="sidenav-container">
             <nav>
@@ -37,7 +36,8 @@
             </div>
         </mat-drawer>
         <mat-drawer-content class="main-content-container">
+            <app-messages [message]="message$"></app-messages>
             <router-outlet></router-outlet>
         </mat-drawer-content>
-      </mat-drawer-container>
+    </mat-drawer-container>
 </div>

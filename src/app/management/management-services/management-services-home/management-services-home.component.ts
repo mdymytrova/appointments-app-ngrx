@@ -2,12 +2,12 @@ import { MediaMatcher } from '@angular/cdk/layout';
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Observable } from 'rxjs';
+import { Observable, of, Subscription } from 'rxjs';
 import { MessagesService } from '../../../messages/messages.service';
 import { ServiceCategory } from '../../interfaces/category.interface';
 import { CategoryFormDialogComponent } from '../category-form-dialog/category-form-dialog.component';
-import { ManagementServicesApiService } from '../services/management-services-api.service';
-import { ServiceCategoriesApiService } from '../services/service-categories-api.service';
+import { ManagementServiceDataService } from '../store/management-service-data.service';
+import { ServiceCategoryEntityService } from '../store/service-category-entity.service';
 
 @Component({
   selector: 'app-management-services-home',
@@ -17,12 +17,14 @@ import { ServiceCategoriesApiService } from '../services/service-categories-api.
 export class ManagementServicesHomeComponent implements OnInit, OnDestroy {
   serviceCategories$!: Observable<ServiceCategory[]>;
   mobileQuery!: MediaQueryList;
+  message$!: Observable<string>;
+  private deleteSubscription!: Subscription;
 
   constructor(
     private router: Router,
     private route: ActivatedRoute,
-    private serviceCategoriesApiService: ServiceCategoriesApiService,
-    private managementServicesApiService: ManagementServicesApiService,
+    private serviceCategoryEntityService: ServiceCategoryEntityService,
+    private managementServiceDataService: ManagementServiceDataService,
     private dialog: MatDialog,
     private changeDetectorRef: ChangeDetectorRef,
     private media: MediaMatcher,
@@ -34,12 +36,13 @@ export class ManagementServicesHomeComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.serviceCategories$ = this.serviceCategoriesApiService.serviceCategories$;
+    this.serviceCategories$ = this.serviceCategoryEntityService.entities$;
   }
 
   ngOnDestroy() {
-    this.serviceCategoriesApiService.setSelectedCategory(null);
-    this.messagesService.showMessage(null);
+    if (this.deleteSubscription) {
+      this.deleteSubscription.unsubscribe();
+    }
   }
 
   private mobileQueryListener: () => void;
@@ -53,13 +56,15 @@ export class ManagementServicesHomeComponent implements OnInit, OnDestroy {
   }
 
   public onDeleteCategory(category: ServiceCategory) {
-    this.serviceCategoriesApiService.deleteServiceCategory(category.id as string)
-      .then(() => {
-        this.managementServicesApiService.deleteServiceCategory(category.id as string);
-      }, () => {
-        this.messagesService.showMessage('Unable to delete service category.');
-      });
-      this.router.navigate(['categories'], { relativeTo: this.route });
+    this.deleteSubscription = this.serviceCategoryEntityService.delete(category).subscribe(
+      () => {
+        this.managementServiceDataService.deleteCategory(category.id as string);
+        this.router.navigate(['categories'], { relativeTo: this.route });
+      },
+      (error) => {
+        this.message$ = of('Unable to delete category.');
+      }
+    );
   }
 
 }
