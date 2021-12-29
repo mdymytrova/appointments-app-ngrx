@@ -5,7 +5,7 @@ import { ManagementProvidersRoutingModule } from './management-providers-routing
 import { MaterialModule } from '../../material/material.module';
 import { ProviderListComponent } from './provider-list/provider-list.component';
 import { ProviderFormComponent } from './provider-form/provider-form.component';
-
+import { SharedModule } from '../../shared/shared.module';
 @NgModule({
   declarations: [
     ProviderListComponent,
@@ -16,7 +16,8 @@ import { ProviderFormComponent } from './provider-form/provider-form.component';
     FormsModule,
     ReactiveFormsModule,
     MaterialModule,
+    SharedModule,
     ManagementProvidersRoutingModule
   ]
 })
-export class ManagementProvidersModule { }
+export class ManagementProvidersModule {}

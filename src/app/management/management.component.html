@@ -20,6 +20,7 @@
         </div>
     </mat-drawer>
     <mat-drawer-content class="main-content-container">
+        <app-messages [message]="message$"></app-messages>
         <router-outlet></router-outlet>
     </mat-drawer-content>
 </mat-drawer-container>

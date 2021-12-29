@@ -3,12 +3,17 @@ import { RouterModule, Routes } from '@angular/router';
 import { ManagementServiceFormComponent} from './management-service-form/management-service-form.component';
 import { ManagementServiceListComponent } from './management-service-list/management-service-list.component';
 import { ManagementServicesHomeComponent } from './management-services-home/management-services-home.component';
-import { ServiceEditGuard } from './services/service-edit.guard';
+import { ManagementServicesResolver } from './services/management-services.resolver';
+import { ServiceCategoriesResolver } from './services/service-categories.resolver';
 
 const routes: Routes = [
   {
     path: '',
     component: ManagementServicesHomeComponent,
+    resolve: {
+      managementServices: ManagementServicesResolver,
+      serviceCategories: ServiceCategoriesResolver
+    },
     children: [
       {
         path: 'categories',
@@ -26,18 +31,12 @@ const routes: Routes = [
             path: ':id/edit',
             component: ManagementServiceFormComponent,
             data: { mode: 'edit' },
-            canActivate: [ServiceEditGuard]
           },
           {
             path: '',
             redirectTo: 'general'
           }
         ]
-      },
-      {
-        path: 'create',
-        component: ManagementServiceFormComponent,
-        data: { mode: 'create' }
       }
     ],
   },

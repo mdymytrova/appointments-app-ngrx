@@ -3,10 +3,10 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { AuthService } from '../auth.service';
-import * as fromAppState from '../../reducers';
-import { loginStart, signupStart } from '../auth.actions';
+import * as fromAppState from '../../store/reducers';
 import { Observable, Subscription } from 'rxjs';
-import { errorMessage } from '../auth.selectors';
+import { errorMessage } from '../store/auth.selectors';
+import { loginStart, signupStart } from '../store/auth.actions';
 
 @Component({
   selector: 'app-login',
